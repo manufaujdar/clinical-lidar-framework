@@ -1,0 +1,9 @@
+Clinical LiDAR Framework
+
+Copyright 2026 Manu Faujdar.
+
+This repository contains original research-prototype code. No third-party
+source code, clinical images, patient identifiers, vendor SDK binaries, or
+model weights are included. Third-party references and optional integration
+boundaries are documented separately; their licenses do not change the license
+of this repository.

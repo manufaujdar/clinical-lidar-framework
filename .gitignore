@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+.DS_Store
+*.sqlite3
+*.db
+.env
+.env.*
+!/.env.example
+
+# Protected or local research material
+artifacts/device-captures/
+artifacts/patient-data/
+*.dcm
+*.dicom
+*.heic
+*.jpg
+*.jpeg
+*.png
+*.mov
+*.mp4

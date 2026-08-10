@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clinical-lidar-framework"
+version = "0.1.0"
+description = "Vendor-neutral research framework for calibrated clinical LiDAR and wound-surface measurement"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Manu Faujdar" }]
+keywords = ["lidar", "depth", "wound", "medical-imaging", "research"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+[project.scripts]
+clinical-lidar = "clinical_lidar.progress_tracker:main"
+clinical-lidar-research = "clinical_lidar.research_cli:main"
+
+[tool.setuptools.packages.find]
+include = ["clinical_lidar*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
