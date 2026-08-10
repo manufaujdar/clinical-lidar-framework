@@ -18,6 +18,8 @@ It is a product-quality review, not a claim of clinical usability validation.
 - Advanced settings occupy a full row rather than leaving an empty half-column beside a disclosure.
 - `Review the change` explains its prerequisite while disabled: `Add both photos to continue`.
 - The destructive `Clear` action is disabled until local history exists.
+- The main task is now a single `Analyze pair` action below the two uploads; it runs the first pass when setup is still pending.
+- Calibration, quality confirmations, and advanced region controls are grouped under a collapsed `Settings` disclosure.
 - The primary action remains singular for each workflow stage; report download and reset remain secondary/text actions.
 - Clinical limitations stay visible near the top and at the result, rather than being hidden behind a help panel.
 

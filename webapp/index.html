@@ -47,10 +47,19 @@
           </article>
         </div>
         <details class="capture-help"><summary><span class="guidance-icon" aria-hidden="true">i</span><span>Quick capture guide</span><small>same reference · same angle · full wound</small></summary><div class="guide-grid"><span><b>01</b> Keep the same ruler or color reference in both photos.</span><span><b>02</b> Hold the camera square and use the same distance.</span><span><b>03</b> Include the full wound and a small surrounding border.</span></div></details>
+        <div class="capture-actions">
+          <button class="button primary compare-button" id="comparePair" type="button" disabled>Add both photos to continue</button>
+          <p class="form-message" id="formMessage" role="status">Add both photos to begin.</p>
+        </div>
       </section>
 
-      <section class="panel setup-panel" aria-labelledby="setup-title">
-        <div class="section-heading compact"><div><span class="step">02</span><div><p class="eyebrow">Let the tool set up</p><h2 id="setup-title">Check the pair</h2></div></div><span class="setup-status" id="depthApiStatus">Photo mode · checking…</span></div>
+      <details class="panel setup-panel settings-panel" aria-labelledby="setup-title">
+        <summary class="settings-summary">
+          <div class="settings-heading"><span class="step">02</span><div><p class="eyebrow">Optional</p><h2 id="setup-title">Settings</h2></div></div>
+          <span class="setup-status" id="depthApiStatus">Photo mode · checking…</span>
+        </summary>
+        <div class="settings-body">
+          <p class="settings-intro">The Analyze pair button runs the local first pass automatically. Open Settings only when you need to confirm scale or adjust the detected region.</p>
         <div class="setup-grid">
           <div class="setup-group auto-group">
             <div class="auto-group-heading">
@@ -87,9 +96,8 @@
             <label>Segmentation sensitivity <output id="sensitivityValue">1.0</output><input class="range" id="sensitivity" type="range" min="0.5" max="2.5" step="0.1" value="1" /></label>
           </details>
         </div>
-        <button class="button primary compare-button" id="comparePair" type="button" disabled>Add both photos to continue</button>
-        <p class="form-message" id="formMessage" role="status">Add both photos to begin.</p>
-      </section>
+        </div>
+      </details>
 
       <section class="results-section" id="resultsSection" aria-labelledby="results-title" hidden>
         <div class="results-header"><div><p class="eyebrow">03 · Review result</p><h2 id="results-title">Your comparison</h2></div><div class="result-state" id="resultState">Review required</div></div>

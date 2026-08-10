@@ -9,6 +9,7 @@ const state = {
   images: { baseline: null, followup: null },
   result: null,
   history: loadHistory(),
+  setupNeedsRun: true,
 };
 
 function loadHistory() {
@@ -81,6 +82,7 @@ async function loadPhoto(kind, file) {
   try {
     if (state.images[kind]?.src) URL.revokeObjectURL(state.images[kind].src);
     state.images[kind] = await loadImageFile(file);
+    state.setupNeedsRun = true;
     $("scaleConfirmed").checked = false; $("reviewedMask").checked = false;
     drawPhotoPreview(kind);
     updateForm();
@@ -296,7 +298,8 @@ function runAutoSetup() {
     ["roiX", "roiY", "roiWidth", "roiHeight"].forEach((id, index) => { $(id).value = [region.roi.x, region.roi.y, region.roi.width, region.roi.height][index].toFixed(1); });
     const alignment = findTranslation(first, second, region.roi); const suggestedBaseline = suggestedMarkerPixels(state.images.baseline, first); const suggestedFollowup = suggestedMarkerPixels(state.images.followup, second);
     if (suggestedBaseline) $("baselineMarkerPx").value = suggestedBaseline; if (suggestedFollowup) $("followupMarkerPx").value = suggestedFollowup; $("scaleConfirmed").checked = false;
-    const regionLabel = region.detected ? "region found" : "using the advanced region"; const scaleLabel = suggestedBaseline && suggestedFollowup ? "scale suggested—confirm it below" : "scale marker pixels still need entry";
+    state.setupNeedsRun = false;
+    const regionLabel = region.detected ? "region found" : "using the advanced region"; const scaleLabel = suggestedBaseline && suggestedFollowup ? "scale suggested—confirm in Settings" : "scale marker pixels still need entry";
     $("autoSetupStatus").textContent = `${regionLabel} · alignment ${Math.round(alignment.score * 100)}% · ${scaleLabel}.`;
     updateForm();
   } catch (error) { $("autoSetupStatus").textContent = `Automatic setup needs help: ${error.message}`; }
@@ -339,7 +342,21 @@ function drawOverlay(canvasId, image, segmentation) {
   context.strokeRect(segmentation.roi.x0 * cellWidth, segmentation.roi.y0 * cellHeight, (segmentation.roi.x1 - segmentation.roi.x0) * cellWidth, (segmentation.roi.y1 - segmentation.roi.y0) * cellHeight);
 }
 
-function updateForm() { const ready = Boolean(state.images.baseline && state.images.followup); $("comparePair").disabled = !ready; $("comparePair").textContent = ready ? "Review the change" : "Add both photos to continue"; $("formMessage").textContent = ready ? "Ready. Confirm scale, compare, then review both outlines." : "Add both photos to begin."; }
+function updateForm() { const ready = Boolean(state.images.baseline && state.images.followup); $("comparePair").disabled = !ready; $("comparePair").textContent = ready ? "Analyze pair" : "Add both photos to continue"; $("formMessage").textContent = ready ? "Ready. Analyze the pair or open Settings first." : "Add both photos to begin."; }
+
+function analyzePair() {
+  if (!state.images.baseline || !state.images.followup) {
+    $("formMessage").textContent = "Add both photos before analyzing.";
+    return;
+  }
+  try {
+    if (state.setupNeedsRun) runAutoSetup();
+    comparePair();
+    $("formMessage").textContent = "Analysis complete. Review the outlines and quality gate below.";
+  } catch (error) {
+    $("formMessage").textContent = error.message;
+  }
+}
 
 function saveResult() {
   if (!state.result) return;
@@ -366,13 +383,13 @@ function downloadResult() {
 
 function renderHistory() { const list = $("historyList"); $("clearHistory").disabled = !state.history.length; if (!state.history.length) { list.replaceChildren(Object.assign(document.createElement("p"), { className: "helper", textContent: "No numeric comparisons saved on this device." })); return; } list.replaceChildren(...state.history.map((record) => { const item = document.createElement("div"); item.className = "history-item"; const label = document.createElement("span"); label.textContent = `${new Date(record.captured_at).toLocaleDateString()} · ${record.earlier_image} → ${record.later_image}`; const value = document.createElement("strong"); value.textContent = record.change.areaReductionPercent === null ? "uncalibrated" : `${format(record.change.areaReductionPercent, 1)}% area`; item.append(label, value); return item; })); }
 
-function resetPair() { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline: null, followup: null }; state.result = null; $("baselineFile").value = ""; $("followupFile").value = ""; $("scaleConfirmed").checked = false; $("reviewedMask").checked = false; $("autoSetupStatus").textContent = "Add both photos to start."; $("resultsSection").hidden = true; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function resetPair() { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline: null, followup: null }; state.result = null; state.setupNeedsRun = true; $("baselineFile").value = ""; $("followupFile").value = ""; $("scaleConfirmed").checked = false; $("reviewedMask").checked = false; $("autoSetupStatus").textContent = "Add both photos to start."; $("resultsSection").hidden = true; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
 function syntheticImage(woundScale) {
   const canvas = document.createElement("canvas"); canvas.width = 640; canvas.height = 480; const context = canvas.getContext("2d"); context.fillStyle = "#c98f76"; context.fillRect(0, 0, canvas.width, canvas.height); context.fillStyle = "rgba(230, 167, 142, .45)"; context.fillRect(0, 0, canvas.width, canvas.height); context.strokeStyle = "#faf4d2"; context.lineWidth = 10; context.strokeRect(44, 34, 100, 42); context.fillStyle = "#9f443d"; context.beginPath(); context.ellipse(330, 260, 100 * woundScale, 75 * woundScale, -.16, 0, Math.PI * 2); context.fill(); context.fillStyle = "#d1a34e"; context.beginPath(); context.ellipse(315, 245, 36 * woundScale, 21 * woundScale, .2, 0, Math.PI * 2); context.fill(); return canvas.toDataURL("image/png");
 }
 
-function loadSyntheticPair() { Promise.all([loadImageFile(dataUrlToFile(syntheticImage(1), "synthetic-earlier.png")), loadImageFile(dataUrlToFile(syntheticImage(.72), "synthetic-later.png"))]).then(([baseline, followup]) => { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline, followup }; $("baselineMarkerPx").value = 100; $("followupMarkerPx").value = 100; $("roiX").value = 20; $("roiY").value = 20; $("roiWidth").value = 60; $("roiHeight").value = 60; $("scaleConfirmed").checked = true; $("reviewedMask").checked = false; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); runAutoSetup(); $("scaleConfirmed").checked = true; }).catch((error) => { $("formMessage").textContent = error.message; }); }
+function loadSyntheticPair() { Promise.all([loadImageFile(dataUrlToFile(syntheticImage(1), "synthetic-earlier.png")), loadImageFile(dataUrlToFile(syntheticImage(.72), "synthetic-later.png"))]).then(([baseline, followup]) => { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline, followup }; state.setupNeedsRun = true; $("baselineMarkerPx").value = 100; $("followupMarkerPx").value = 100; $("roiX").value = 20; $("roiY").value = 20; $("roiWidth").value = 60; $("roiHeight").value = 60; $("scaleConfirmed").checked = true; $("reviewedMask").checked = false; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); runAutoSetup(); $("scaleConfirmed").checked = true; }).catch((error) => { $("formMessage").textContent = error.message; }); }
 
 function dataUrlToFile(dataUrl, name) { const [header, body] = dataUrl.split(","); const bytes = atob(body); const array = new Uint8Array(bytes.length); for (let index = 0; index < bytes.length; index += 1) array[index] = bytes.charCodeAt(index); return new File([array], name, { type: header.match(/:(.*?);/)[1] }); }
 
@@ -382,9 +399,9 @@ $("baselineFile").addEventListener("change", (event) => { if (event.target.files
 $("followupFile").addEventListener("change", (event) => { if (event.target.files?.[0]) loadPhoto("followup", event.target.files[0]); });
 $("loadDemo").addEventListener("click", loadSyntheticPair);
 $("autoSetup").addEventListener("click", runAutoSetup);
-$("comparePair").addEventListener("click", () => { try { comparePair(); $("formMessage").textContent = "Outline generated locally. Review it before saving."; } catch (error) { $("formMessage").textContent = error.message; } });
+$("comparePair").addEventListener("click", analyzePair);
 $("sensitivity").addEventListener("input", (event) => { $("sensitivityValue").textContent = Number(event.target.value).toFixed(1); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } });
-["scaleConfirmed", "reviewedMask", "markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].forEach((id) => $(id).addEventListener("change", () => { updateForm(); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } }));
+["scaleConfirmed", "reviewedMask", "markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].forEach((id) => $(id).addEventListener("change", () => { if (["markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].includes(id)) state.setupNeedsRun = false; updateForm(); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } }));
 $("saveResult").addEventListener("click", saveResult); $("downloadResult").addEventListener("click", downloadResult); $("resetPair").addEventListener("click", resetPair);
 $("clearHistory").addEventListener("click", () => { if (!confirm("Clear saved numeric comparisons from this device?")) return; state.history = []; if (!saveHistory()) { $("formMessage").textContent = "Could not update local history in this browser."; return; } renderHistory(); });
 
