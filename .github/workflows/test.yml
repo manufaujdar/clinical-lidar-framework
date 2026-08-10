@@ -19,3 +19,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check Python syntax
         run: python -m compileall -q clinical_lidar
+      - name: Check webapp JavaScript syntax
+        run: node --check webapp/app.js
