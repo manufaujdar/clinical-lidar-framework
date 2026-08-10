@@ -8,6 +8,10 @@ together. This is not a statement of clinical performance.
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [0.1.1] - 2026-08-10
+
 - Added a deterministic, repo-local frontend review agent and CI audit command.
 - Hardened local history persistence and report downloads in the browser app.
 - Clarified that the current longest-axis metric is axis-aligned rather than a true rotated maximum.
@@ -15,6 +19,7 @@ together. This is not a statement of clinical performance.
 - Added a single photo-first `Analyze pair` action with automatic first-pass setup and collapsed settings.
 - Added paired clinical context fields, evidence-aligned interpretation qualifiers, and a local copyable Markdown analysis brief.
 - Refined the brand mark, header status, method entry point, and trust-oriented footer with responsive and keyboard-visible states.
+- No clinical performance, diagnostic, treatment, or regulatory claims were added.
 
 ## [0.1.0] - 2026-08-10
 
