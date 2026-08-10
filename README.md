@@ -68,6 +68,7 @@ tools/frontend_agent/      deterministic supervised frontend review agent
 examples/                   synthetic manifests only
 tests/                      deterministic regression tests, including the review agent
 docs in root                compliance, security, validation, and provenance
+UI_UX_REVIEW.md             interaction decisions and design-system references
 ```
 
 ## Research boundary

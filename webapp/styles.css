@@ -93,12 +93,12 @@ input:focus, select:focus, button:focus-visible, summary:focus-visible { outline
 .range { width: 100%; margin-top: 18px; accent-color: var(--accent); }
 .auto-group { background: #f0f6f2; border-color: #cbded4; }
 .auto-group-heading { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
-.button.small { padding: 8px 11px; font-size: .72rem; }
+.button.small { min-width: max-content; padding: 8px 11px; font-size: .72rem; white-space: nowrap; }
 .auto-status { margin: 10px 0 0; color: var(--accent); font-size: .72rem; }
 .check-stack { display: grid; gap: 7px; margin-top: 12px; }
 .advanced-group summary { cursor: pointer; color: var(--ink); font-size: .82rem; font-weight: 750; }
 .advanced-group summary span { margin-left: 6px; color: var(--subtle); font-size: .68rem; font-weight: 400; }
-.advanced-group[open] { grid-column: 1 / -1; }
+.advanced-group { grid-column: 1 / -1; }
 .compare-button { width: 100%; margin-top: 17px; padding-block: 13px; }
 .form-message { min-height: 1.2em; margin: 10px 0 0; color: var(--subtle); font-size: .74rem; text-align: center; }
 .results-section { margin-top: 42px; }

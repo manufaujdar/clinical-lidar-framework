@@ -339,7 +339,7 @@ function drawOverlay(canvasId, image, segmentation) {
   context.strokeRect(segmentation.roi.x0 * cellWidth, segmentation.roi.y0 * cellHeight, (segmentation.roi.x1 - segmentation.roi.x0) * cellWidth, (segmentation.roi.y1 - segmentation.roi.y0) * cellHeight);
 }
 
-function updateForm() { $("comparePair").disabled = !(state.images.baseline && state.images.followup); $("formMessage").textContent = state.images.baseline && state.images.followup ? "Ready. Confirm scale, compare, then review both outlines." : "Add both photos to begin."; }
+function updateForm() { const ready = Boolean(state.images.baseline && state.images.followup); $("comparePair").disabled = !ready; $("comparePair").textContent = ready ? "Review the change" : "Add both photos to continue"; $("formMessage").textContent = ready ? "Ready. Confirm scale, compare, then review both outlines." : "Add both photos to begin."; }
 
 function saveResult() {
   if (!state.result) return;
@@ -364,7 +364,7 @@ function downloadResult() {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
-function renderHistory() { const list = $("historyList"); if (!state.history.length) { list.replaceChildren(Object.assign(document.createElement("p"), { className: "helper", textContent: "No numeric comparisons saved on this device." })); return; } list.replaceChildren(...state.history.map((record) => { const item = document.createElement("div"); item.className = "history-item"; const label = document.createElement("span"); label.textContent = `${new Date(record.captured_at).toLocaleDateString()} · ${record.earlier_image} → ${record.later_image}`; const value = document.createElement("strong"); value.textContent = record.change.areaReductionPercent === null ? "uncalibrated" : `${format(record.change.areaReductionPercent, 1)}% area`; item.append(label, value); return item; })); }
+function renderHistory() { const list = $("historyList"); $("clearHistory").disabled = !state.history.length; if (!state.history.length) { list.replaceChildren(Object.assign(document.createElement("p"), { className: "helper", textContent: "No numeric comparisons saved on this device." })); return; } list.replaceChildren(...state.history.map((record) => { const item = document.createElement("div"); item.className = "history-item"; const label = document.createElement("span"); label.textContent = `${new Date(record.captured_at).toLocaleDateString()} · ${record.earlier_image} → ${record.later_image}`; const value = document.createElement("strong"); value.textContent = record.change.areaReductionPercent === null ? "uncalibrated" : `${format(record.change.areaReductionPercent, 1)}% area`; item.append(label, value); return item; })); }
 
 function resetPair() { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline: null, followup: null }; state.result = null; $("baselineFile").value = ""; $("followupFile").value = ""; $("scaleConfirmed").checked = false; $("reviewedMask").checked = false; $("autoSetupStatus").textContent = "Add both photos to start."; $("resultsSection").hidden = true; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
