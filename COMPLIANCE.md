@@ -19,7 +19,7 @@ patient data.
 - Auditability: local record save/delete events are written to a minimal audit
   table without storing clinical narrative or direct identifiers.
 - Access boundary: the service refuses non-loopback hosts by default and can
-  require `DEPTHLINE_LOCAL_TOKEN` for local API requests.
+  require `CLINICAL_LIDAR_LOCAL_TOKEN` for local API requests.
 - Deletion/export: the browser supports clearing local history and downloading
   the current numeric record; the local service exposes record deletion.
 

@@ -6,6 +6,12 @@ The project follows a lightweight release convention: versioned source changes,
 validation evidence, provenance notes, and known limitations are recorded
 together. This is not a statement of clinical performance.
 
+## [Unreleased]
+
+- Added a deterministic, repo-local frontend review agent and CI audit command.
+- Hardened local history persistence and report downloads in the browser app.
+- Clarified that the current longest-axis metric is axis-aligned rather than a true rotated maximum.
+
 ## [0.1.0] - 2026-08-10
 
 ### Added

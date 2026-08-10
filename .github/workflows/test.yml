@@ -21,3 +21,5 @@ jobs:
         run: python -m compileall -q clinical_lidar
       - name: Check webapp JavaScript syntax
         run: node --check webapp/app.js
+      - name: Run frontend review agent
+        run: python tools/frontend_agent/frontend_agent.py audit --json
