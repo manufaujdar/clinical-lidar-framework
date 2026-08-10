@@ -14,6 +14,7 @@ together. This is not a statement of clinical performance.
 - Improved workflow order, button hierarchy, empty-history states, and advanced-settings placement.
 - Added a single photo-first `Analyze pair` action with automatic first-pass setup and collapsed settings.
 - Added paired clinical context fields, evidence-aligned interpretation qualifiers, and a local copyable Markdown analysis brief.
+- Refined the brand mark, header status, method entry point, and trust-oriented footer with responsive and keyboard-visible states.
 
 ## [0.1.0] - 2026-08-10
 

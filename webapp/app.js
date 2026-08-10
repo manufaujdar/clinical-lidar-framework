@@ -531,5 +531,6 @@ contextFieldIds.forEach((id) => $(id).addEventListener("input", () => { syncDays
 contextFieldIds.forEach((id) => $(id).addEventListener("change", () => { syncDaysBetweenFromContext(); if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
 document.querySelectorAll("[data-context-sign]").forEach((input) => input.addEventListener("change", () => { if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
 $("copyReport").addEventListener("click", copyReport);
+document.querySelectorAll('a[href="#method-panel"]').forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); const methodPanel = $("method-panel"); methodPanel.setAttribute("open", ""); methodPanel.scrollIntoView({ block: "start", behavior: "smooth" }); history.replaceState(null, "", "#method-panel"); }));
 
 renderHistory(); drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); updateDepthApiStatus();

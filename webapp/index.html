@@ -10,8 +10,21 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="." aria-label="Clinical LiDAR home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 28 28" role="img"><path d="M5 7.5h7.2a6.5 6.5 0 0 1 0 13H5z" /><path d="M9 11.5h3.2a2.5 2.5 0 0 1 0 5H9z" /><path d="M18.5 8.5v11" /></svg></span><span>Clinical LiDAR</span></a>
-      <span class="header-status">Photo route · local only</span>
+      <a class="brand" href="." aria-label="Clinical LiDAR home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" role="img">
+            <path d="M7 9h10a9 9 0 1 1 0 18H7z" />
+            <path d="M12 14h4a4 4 0 1 1 0 8h-4z" />
+            <path d="M24 7v22" />
+            <path d="M27 12h3M27 18h3M27 24h3" />
+          </svg>
+        </span>
+        <span class="brand-copy"><span class="brand-name">Clinical LiDAR</span><span class="brand-meta">Paired-photo research</span></span>
+      </a>
+      <div class="header-actions">
+        <a class="header-link" href="#method-panel">Method</a>
+        <span class="header-status"><span class="status-dot" aria-hidden="true"></span><span>Photo route</span><strong>Local only</strong></span>
+      </div>
     </header>
 
     <main>
@@ -175,9 +188,31 @@
       </section>
 
       <section class="history-section panel" aria-labelledby="history-title"><div class="section-heading compact"><div><p class="eyebrow">Local history</p><h2 id="history-title">Saved comparisons</h2></div><button class="text-button danger" id="clearHistory" type="button" disabled>Clear</button></div><div id="historyList" class="history-list"><p class="helper">No numeric comparisons saved on this device.</p></div></section>
-      <details class="method-panel"><summary>About this tool</summary><p>Clinical LiDAR uses calibrated digital planimetry measures—area, perimeter, longest/widest dimensions—and reports percentage area reduction alongside linear edge change. The image signal is a comparability aid. This browser route uses photos; true device depth remains separate through native device adapters and the depth-grid workflow.</p></details>
+      <details class="method-panel" id="method-panel"><summary>About this tool</summary><p>Clinical LiDAR uses calibrated digital planimetry measures—area, perimeter, longest/widest dimensions—and reports percentage area reduction alongside linear edge change. The image signal is a comparability aid. This browser route uses photos; true device depth remains separate through native device adapters and the depth-grid workflow.</p></details>
     </main>
-    <footer class="site-footer"><span>Clinical LiDAR · open research framework</span><span>No images leave this browser.</span></footer>
+    <footer class="site-footer">
+      <div class="footer-main">
+        <div class="footer-brand">
+          <a class="brand footer-brand-link" href="." aria-label="Clinical LiDAR home">
+            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 36 36" role="img"><path d="M7 9h10a9 9 0 1 1 0 18H7z" /><path d="M12 14h4a4 4 0 1 1 0 8h-4z" /><path d="M24 7v22" /><path d="M27 12h3M27 18h3M27 24h3" /></svg></span>
+            <span class="brand-copy"><span class="brand-name">Clinical LiDAR</span><span class="brand-meta">Open research framework</span></span>
+          </a>
+          <p>Paired wound-surface review for transparent, human-checked measurement.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <span class="footer-label">Explore</span>
+          <a href="#capture-title">Compare photos</a>
+          <a href="#method-panel">Read the method</a>
+          <a href="https://github.com/manufaujdar/clinical-lidar-framework" target="_blank" rel="noreferrer">Source on GitHub <span aria-hidden="true">↗</span></a>
+        </nav>
+        <div class="footer-trust">
+          <span class="footer-label">Data boundary</span>
+          <strong><span class="status-dot" aria-hidden="true"></span> Images stay in this browser</strong>
+          <span>Research prototype · not a clinical device</span>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>Clinical LiDAR Framework · Apache-2.0</span><span>Built for careful review, not diagnosis.</span></div>
+    </footer>
     <script type="module" src="app.js"></script>
   </body>
 </html>
