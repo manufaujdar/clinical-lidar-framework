@@ -37,6 +37,114 @@ function numberValue(id, fallback = null) {
 
 function format(value, digits = 1) { return Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : "—"; }
 
+function fieldValue(id) { const field = $(id); return field ? String(field.value || "").trim() : ""; }
+
+function selectedLabel(id) { const field = $(id); return field?.selectedOptions?.[0]?.textContent?.trim() || "Not recorded"; }
+
+function reportValue(value) { return String(value || "Not recorded").replaceAll("`", "'").replaceAll("\n", " ").trim() || "Not recorded"; }
+
+function collectContext() {
+  return {
+    caseCode: fieldValue("caseCode"),
+    anatomicSite: fieldValue("anatomicSite"),
+    laterality: selectedLabel("laterality"),
+    woundType: selectedLabel("woundType"),
+    woundTypeValue: fieldValue("woundType"),
+    woundStage: selectedLabel("woundStage"),
+    woundDurationDays: fieldValue("woundDurationDays"),
+    captureSetting: selectedLabel("captureSetting"),
+    baselineCapturedAt: fieldValue("baselineCapturedAt"),
+    followupCapturedAt: fieldValue("followupCapturedAt"),
+    baselineCaptureCondition: selectedLabel("baselineCaptureCondition"),
+    followupCaptureCondition: selectedLabel("followupCaptureCondition"),
+    baseline: {
+      exudate: selectedLabel("exudateBaseline"), exudateValue: fieldValue("exudateBaseline"),
+      tissue: selectedLabel("tissueBaseline"), tissueValue: fieldValue("tissueBaseline"),
+      periwound: selectedLabel("periwoundBaseline"),
+      edge: selectedLabel("edgeBaseline"),
+      depthMm: fieldValue("depthBaselineMm"), pain: fieldValue("painBaseline"), dressing: selectedLabel("dressingBaseline"),
+    },
+    followup: {
+      exudate: selectedLabel("exudateFollowup"), exudateValue: fieldValue("exudateFollowup"),
+      tissue: selectedLabel("tissueFollowup"), tissueValue: fieldValue("tissueFollowup"),
+      periwound: selectedLabel("periwoundFollowup"),
+      edge: selectedLabel("edgeFollowup"),
+      depthMm: fieldValue("depthFollowupMm"), pain: fieldValue("painFollowup"), dressing: selectedLabel("dressingFollowup"),
+    },
+    observedSigns: [...document.querySelectorAll("[data-context-sign]:checked")].map((input) => input.dataset.contextSign),
+    careChanges: fieldValue("careChanges"),
+    operatorNote: fieldValue("operatorNote"),
+  };
+}
+
+function pushAreaScore(areaCm2) {
+  if (!Number.isFinite(areaCm2)) return null;
+  if (areaCm2 <= 0) return 0;
+  if (areaCm2 <= .3) return 1;
+  if (areaCm2 <= .6) return 2;
+  if (areaCm2 <= 1) return 3;
+  if (areaCm2 <= 2) return 4;
+  if (areaCm2 <= 3) return 5;
+  if (areaCm2 <= 4) return 6;
+  if (areaCm2 <= 8) return 7;
+  if (areaCm2 <= 12) return 8;
+  if (areaCm2 <= 24) return 9;
+  return 10;
+}
+
+function pushAlignedSummary(result, context) {
+  if (context.woundTypeValue !== "pressure_injury" || !$("scaleConfirmed").checked) return null;
+  const exudateScores = { none: 0, low: 1, moderate: 2, high: 3 };
+  const tissueScores = { closed: 0, epithelial: 1, mostly_granulation: 2, mostly_slough: 3, necrotic: 4 };
+  const rows = [context.baseline, context.followup].map((observation, index) => {
+    const metrics = index === 0 ? result.baseline.metrics : result.followup.metrics;
+    const mmPerPixel = index === 0 ? result.baseline.mmPerPixel : result.followup.mmPerPixel;
+    if (!mmPerPixel || !(observation.exudateValue in exudateScores) || !(observation.tissueValue in tissueScores)) return null;
+    const areaCm2 = metrics.longestMm * metrics.widestMm / 100;
+    const areaScore = pushAreaScore(areaCm2);
+    const exudateScore = exudateScores[observation.exudateValue];
+    const tissueScore = tissueScores[observation.tissueValue];
+    return { areaCm2, areaScore, exudateScore, tissueScore, total: areaScore + exudateScore + tissueScore };
+  });
+  return rows.every(Boolean) ? { earlier: rows[0], followup: rows[1] } : null;
+}
+
+function contextNotes(result, context) {
+  const notes = [];
+  if (!context.anatomicSite && context.woundTypeValue === "not_recorded") notes.push("No anatomic site or wound etiology was recorded; interpretation remains image-only.");
+  if (context.baselineCapturedAt && context.followupCapturedAt) notes.push(`Capture interval recorded from ${context.baselineCapturedAt} to ${context.followupCapturedAt}.`);
+  if ([context.baselineCaptureCondition, context.followupCaptureCondition].some((value) => value !== "Not recorded" && value !== "Reference, angle, and lighting matched")) notes.push("At least one capture-condition difference was recorded; lighting, angle, distance, or covering may affect visual comparability.");
+  if (context.baseline.dressing !== "Not recorded" || context.followup.dressing !== "Not recorded") notes.push("Dressing or covering information was recorded; compare wound visibility before interpreting geometric change.");
+  if (context.baseline.tissue !== "Not recorded" && context.followup.tissue !== "Not recorded" && context.baseline.tissue !== context.followup.tissue) notes.push(`Operator-entered tissue context changed from ${context.baseline.tissue} to ${context.followup.tissue}; this is not inferred from the image.`);
+  if (context.baseline.exudate !== "Not recorded" && context.followup.exudate !== "Not recorded" && context.baseline.exudate !== context.followup.exudate) notes.push(`Operator-entered exudate changed from ${context.baseline.exudate} to ${context.followup.exudate}; this is a clinical observation, not a pixel measurement.`);
+  if (context.observedSigns.length) notes.push(`Follow-up observations recorded: ${context.observedSigns.join(", ")}. These require qualified clinical interpretation.`);
+  if (context.careChanges) notes.push("Care or treatment changes were recorded and may explain differences between the two captures.");
+  if (!notes.length) notes.push("No additional operator context was recorded.");
+  if (result.quality.flags.length) notes.push(`Quality gate flags remain: ${result.quality.flags.join(", ").replaceAll("_", " ")}.`);
+  return notes;
+}
+
+function renderContextNotes(result, context = collectContext()) {
+  const list = $("contextNotes");
+  if (!list) return;
+  list.replaceChildren(...contextNotes(result, context).map((note) => Object.assign(document.createElement("li"), { textContent: note })));
+}
+
+function markdownReport(result, context) {
+  const push = pushAlignedSummary(result, context);
+  const observation = (label, value) => `- ${label}: ${reportValue(value)}`;
+  const metrics = (record) => [
+    observation("Area", `${format(record.metrics.areaMm2, 1)} mm²`),
+    observation("Perimeter", `${format(record.metrics.perimeterMm, 1)} mm`),
+    observation("Longest axis", `${format(record.metrics.longestMm, 1)} mm`),
+    observation("Widest axis", `${format(record.metrics.widestMm, 1)} mm`),
+  ].join("\n");
+  const signs = context.observedSigns.length ? context.observedSigns.join(", ") : "Not recorded";
+  return `# Clinical LiDAR paired-photo analysis\n\n> Research summary only. This report describes image-derived change and operator-entered context. It does not diagnose infection, determine healing, predict recovery, or replace clinical assessment.\n\n## Case and capture context\n\n${observation("Case code", context.caseCode)}\n${observation("Anatomic site", context.anatomicSite)}\n${observation("Laterality", context.laterality)}\n${observation("Wound type / etiology", context.woundType)}\n${observation("Pressure-injury stage", context.woundStage)}\n${observation("Duration at earlier photo", context.woundDurationDays ? `${context.woundDurationDays} days` : "Not recorded")}\n${observation("Capture setting", context.captureSetting)}\n${observation("Earlier photo date/time", context.baselineCapturedAt)}\n${observation("Follow-up photo date/time", context.followupCapturedAt)}\n${observation("Days between analysis captures", result.change.daysBetween ? `${result.change.daysBetween} days` : "Not recorded")}\n\n## Image inputs\n\n- Route: paired RGB photo planimetry; pixels stay local in the browser.\n- Earlier image: ${reportValue(result.baseline.name)} (${result.baseline.width}×${result.baseline.height}px)\n- Follow-up image: ${reportValue(result.followup.name)} (${result.followup.width}×${result.followup.height}px)\n- Earlier capture condition: ${reportValue(context.baselineCaptureCondition)}\n- Follow-up capture condition: ${reportValue(context.followupCaptureCondition)}\n\n## Geometry comparison\n\n### Earlier photo\n\n${metrics(result.baseline)}\n\n### Follow-up photo\n\n${metrics(result.followup)}\n\n### Change\n\n${observation("Area change", result.change.areaReductionPercent === null ? "Uncalibrated" : `${format(result.change.areaReductionPercent, 1)}% area reduction`)}\n${observation("Area difference", `${format(result.change.areaReductionMm2, 1)} mm²`)}\n${observation("Linear edge change", `${format(result.change.linearEdgeChangeMm, 1)} mm`)}\n${observation("Visual comparability / SSIM", format(result.imageSignal.ssim, 2))}\n${observation("Pixels with visible change", `${format(result.imageSignal.changedFraction * 100, 1)}%`)}\n\n## Quality and review\n\n- Engineering quality score: ${Math.round(result.quality.score * 100)} / 100\n- Quality flags: ${result.quality.flags.length ? result.quality.flags.join(", ") : "none"}\n- Outline reviewed by operator: ${$("reviewedMask").checked ? "yes" : "no"}\n- Scale confirmed by operator: ${$("scaleConfirmed").checked ? "yes" : "no"}\n\n## Operator-entered wound observations\n\n### Earlier photo\n\n${observation("Exudate", context.baseline.exudate)}\n${observation("Visible tissue", context.baseline.tissue)}\n${observation("Periwound", context.baseline.periwound)}\n${observation("Wound edge", context.baseline.edge)}\n${observation("Clinician-measured maximum depth", context.baseline.depthMm ? `${context.baseline.depthMm} mm` : "Not measured")}\n${observation("Pain score", context.baseline.pain || "Not recorded")}\n${observation("Dressing / covering", context.baseline.dressing)}\n\n### Follow-up photo\n\n${observation("Exudate", context.followup.exudate)}\n${observation("Visible tissue", context.followup.tissue)}\n${observation("Periwound", context.followup.periwound)}\n${observation("Wound edge", context.followup.edge)}\n${observation("Clinician-measured maximum depth", context.followup.depthMm ? `${context.followup.depthMm} mm` : "Not measured")}\n${observation("Pain score", context.followup.pain || "Not recorded")}\n${observation("Dressing / covering", context.followup.dressing)}\n\n${observation("Observed follow-up signs", signs)}\n${observation("Care or treatment changes", context.careChanges)}\n${observation("Additional operator note", context.operatorNote)}\n\n## Evidence-aligned interpretation guardrails\n\n${contextNotes(result, context).map((note) => `- ${note}`).join("\n")}\n\n${push ? `## PUSH-aligned research mapping\n\nThe following is a transparent mapping of the pressure-ulcer PUSH components (length × width, exudate amount, and tissue type) for a pressure-injury record. It is not a validated Clinical LiDAR score and is not generated for other wound etiologies.\n\n- Earlier: area proxy ${format(push.earlier.areaCm2, 2)} cm² → area component ${push.earlier.areaScore}; exudate component ${push.earlier.exudateScore}; tissue component ${push.earlier.tissueScore}; total ${push.earlier.total}/17.\n- Follow-up: area proxy ${format(push.followup.areaCm2, 2)} cm² → area component ${push.followup.areaScore}; exudate component ${push.followup.exudateScore}; tissue component ${push.followup.tissueScore}; total ${push.followup.total}/17.\n` : "## PUSH-aligned research mapping\n\nNot generated: select pressure injury, confirm scale, and record scoreable exudate/tissue categories for both photos. This app does not claim to implement a validated PUSH score.\n"}\n## Suggested questions for an AI assistant\n\n1. Separate image-derived geometry from operator-entered observations.\n2. Explain which changes may be measurement or capture-condition artifacts.\n3. Summarize changes in area, perimeter, axes, exudate, tissue, periwound, edge, depth, and pain without diagnosing.\n4. Identify missing information and state what requires qualified clinical review.\n5. Do not infer infection, healing, prognosis, or treatment response from these data alone.\n\n## References\n\n- PUSH derivation and validation: https://pubmed.ncbi.nlm.nih.gov/11723157/\n- Bates-Jensen wound assessment reliability: https://pmc.ncbi.nlm.nih.gov/articles/PMC6693585/\n- Percentage area reduction and diabetic foot-ulcer outcomes: https://pubmed.ncbi.nlm.nih.gov/16799391/\n- Standardized wound photography: https://pubmed.ncbi.nlm.nih.gov/35993857/\n- Digital planimetry accuracy and reliability: https://pubmed.ncbi.nlm.nih.gov/19521289/\n`;
+}
+
+function renderMarkdownReport(result, context = collectContext()) { const output = $("reportMarkdown"); if (output) output.value = markdownReport(result, context); }
+
 function median(values) {
   const sorted = [...values].sort((a, b) => a - b);
   if (!sorted.length) return 0;
@@ -333,7 +441,7 @@ function renderResult(result, first, second) {
   $("ssimValue").textContent = format(result.imageSignal.ssim, 2); $("ssimDetail").textContent = format(result.imageSignal.ssim, 2); $("changedFraction").textContent = `${format(result.imageSignal.changedFraction * 100, 1)}%`; $("circularityDetail").textContent = `${format(result.baseline.metrics.circularity, 2)} → ${format(result.followup.metrics.circularity, 2)}`; $("colorMixDetail").textContent = `${format(result.baseline.colorFractions.red * 100, 0)}% red → ${format(result.followup.colorFractions.red * 100, 0)}%`; $("qualityScore").textContent = `${Math.round(result.quality.score * 100)} / 100`; $("qualityScore").classList.toggle("ready", usable);
   const qualityLabels = { scaleMarker: "Scale reference", poseAlignment: "Frame alignment", lightingConsistency: "Lighting consistency", segmentationReviewed: "Outline review", imageQuality: "Photo quality" };
   $("qualityList").replaceChildren(...Object.entries(result.quality.components).map(([key, value]) => { const item = document.createElement("div"); item.className = `quality-item ${value < .75 ? "warn" : ""}`; const label = document.createElement("span"); label.textContent = qualityLabels[key] || key; const score = document.createElement("strong"); score.textContent = `${Math.round(value * 100)}%`; item.append(label, score); return item; }));
-  drawOverlay("baselineCanvas", state.images.baseline.image, first); drawOverlay("followupCanvas", state.images.followup.image, second); $("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+  drawOverlay("baselineCanvas", state.images.baseline.image, first); drawOverlay("followupCanvas", state.images.followup.image, second); renderContextNotes(result); renderMarkdownReport(result); $("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function drawOverlay(canvasId, image, segmentation) {
@@ -360,7 +468,7 @@ function analyzePair() {
 
 function saveResult() {
   if (!state.result) return;
-  const record = { id: `pair-${Date.now()}`, captured_at: state.result.capturedAt, earlier_image: state.result.baseline.name, later_image: state.result.followup.name, change: state.result.change, image_signal: state.result.imageSignal, quality: state.result.quality, tissue: state.result.tissue, context: { exudate: $("exudate").value, tissue: $("tissueContext").value, periwound: $("periwound").value } };
+  const record = { id: `pair-${Date.now()}`, captured_at: state.result.capturedAt, earlier_image: state.result.baseline.name, later_image: state.result.followup.name, change: state.result.change, image_signal: state.result.imageSignal, quality: state.result.quality, tissue: state.result.tissue, context: collectContext() };
   state.history = [record, ...state.history].slice(0, 20);
   if (!saveHistory()) {
     $("formMessage").textContent = "Could not save numeric history in this browser. Download the report instead.";
@@ -372,7 +480,7 @@ function saveResult() {
 
 function downloadResult() {
   if (!state.result) return;
-  const blob = new Blob([JSON.stringify({ ...state.result, context: { exudate: $("exudate").value, tissue: $("tissueContext").value, periwound: $("periwound").value } }, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ ...state.result, context: collectContext() }, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -395,6 +503,20 @@ function dataUrlToFile(dataUrl, name) { const [header, body] = dataUrl.split(","
 
 async function updateDepthApiStatus() { const status = $("depthApiStatus"); try { const capability = await getWebXRDepthCapability(); status.textContent = capability.supported ? "Device depth available" : "Photo mode · local only"; status.title = capability.reason; status.classList.toggle("available", capability.supported); } catch { status.textContent = "Photo mode · local only"; } }
 
+function syncDaysBetweenFromContext() {
+  const baseline = Date.parse(fieldValue("baselineCapturedAt")); const followup = Date.parse(fieldValue("followupCapturedAt"));
+  if (Number.isFinite(baseline) && Number.isFinite(followup) && followup >= baseline) $("daysBetween").value = ((followup - baseline) / 86400000).toFixed(1).replace(/\.0$/, "");
+}
+
+async function copyReport() {
+  const output = $("reportMarkdown"); if (!output?.value) return;
+  try {
+    if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(output.value);
+    else { output.focus(); output.select(); document.execCommand("copy"); }
+    $("copyStatus").textContent = "Copied locally. Remove identifiers before sharing.";
+  } catch { $("copyStatus").textContent = "Copy failed. Select the text and copy it manually."; }
+}
+
 $("baselineFile").addEventListener("change", (event) => { if (event.target.files?.[0]) loadPhoto("baseline", event.target.files[0]); });
 $("followupFile").addEventListener("change", (event) => { if (event.target.files?.[0]) loadPhoto("followup", event.target.files[0]); });
 $("loadDemo").addEventListener("click", loadSyntheticPair);
@@ -404,5 +526,10 @@ $("sensitivity").addEventListener("input", (event) => { $("sensitivityValue").te
 ["scaleConfirmed", "reviewedMask", "markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].forEach((id) => $(id).addEventListener("change", () => { if (["markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].includes(id)) state.setupNeedsRun = false; updateForm(); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } }));
 $("saveResult").addEventListener("click", saveResult); $("downloadResult").addEventListener("click", downloadResult); $("resetPair").addEventListener("click", resetPair);
 $("clearHistory").addEventListener("click", () => { if (!confirm("Clear saved numeric comparisons from this device?")) return; state.history = []; if (!saveHistory()) { $("formMessage").textContent = "Could not update local history in this browser."; return; } renderHistory(); });
+const contextFieldIds = ["caseCode", "anatomicSite", "laterality", "woundType", "woundStage", "woundDurationDays", "captureSetting", "baselineCapturedAt", "followupCapturedAt", "baselineCaptureCondition", "followupCaptureCondition", "exudateBaseline", "exudateFollowup", "tissueBaseline", "tissueFollowup", "periwoundBaseline", "periwoundFollowup", "edgeBaseline", "edgeFollowup", "depthBaselineMm", "depthFollowupMm", "painBaseline", "painFollowup", "dressingBaseline", "dressingFollowup", "careChanges", "operatorNote"];
+contextFieldIds.forEach((id) => $(id).addEventListener("input", () => { syncDaysBetweenFromContext(); if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
+contextFieldIds.forEach((id) => $(id).addEventListener("change", () => { syncDaysBetweenFromContext(); if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
+document.querySelectorAll("[data-context-sign]").forEach((input) => input.addEventListener("change", () => { if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
+$("copyReport").addEventListener("click", copyReport);
 
 renderHistory(); drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); updateDepthApiStatus();

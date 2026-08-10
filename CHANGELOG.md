@@ -13,6 +13,7 @@ together. This is not a statement of clinical performance.
 - Clarified that the current longest-axis metric is axis-aligned rather than a true rotated maximum.
 - Improved workflow order, button hierarchy, empty-history states, and advanced-settings placement.
 - Added a single photo-first `Analyze pair` action with automatic first-pass setup and collapsed settings.
+- Added paired clinical context fields, evidence-aligned interpretation qualifiers, and a local copyable Markdown analysis brief.
 
 ## [0.1.0] - 2026-08-10
 

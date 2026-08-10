@@ -26,6 +26,30 @@ presence, pose alignment, lighting consistency, segmentation review, and image
 quality. Missing or poor inputs are reported as flags rather than silently
 producing a clinical-looking score.
 
+## Optional context layer
+
+The webapp now captures paired, operator-entered context using dimensions that
+are common in structured wound assessment: anatomic site and etiology, capture
+date/time and conditions, exudate amount, tissue type, periwound condition,
+wound edge, clinician-measured depth, pain, dressing/covering, observed signs,
+and care changes. The structure is informed by the TIME/TIMERS framework and
+the Bates-Jensen Wound Assessment Tool (BWAT), which covers characteristics such
+as size, visible depth, edges, undermining/tunneling, necrotic tissue, exudate,
+periwound changes, granulation, and epithelialization.
+
+For pressure-injury records only, the local Markdown report can show a
+transparent PUSH-aligned mapping of length × width, exudate, and tissue
+components when scale and scoreable paired observations are present. This is a
+research mapping, not a validated Clinical LiDAR score. Context does not alter
+the segmentation mask or geometry values; it adds interpretation qualifiers,
+captures confounders such as lighting/dressing changes, and makes missing
+information visible. This separation is intentional because the cited tools
+were validated in defined populations and workflows, not in this prototype.
+
+Percentage area reduction is reported as a longitudinal geometry signal. The
+4-week healing associations reported for diabetic foot ulcers should not be
+transferred to other wound types or treated as a recovery threshold here.
+
 ## Automation layers in the browser route
 
 The paired-photo interface now reduces repetitive setup with bounded, local
@@ -75,6 +99,11 @@ exudate, or lighting can create a large image difference without tissue change.
 - [Non-contact digital planimetry with a scale marker](https://pubmed.ncbi.nlm.nih.gov/36001845/)
 - [Automatic colorimetric calibration of human wounds](https://pmc.ncbi.nlm.nih.gov/articles/PMC2850874/)
 - [Standardized injury photography protocol](https://pubmed.ncbi.nlm.nih.gov/26932497/)
+- [PUSH derivation and validation](https://pubmed.ncbi.nlm.nih.gov/11723157/)
+- [Bates-Jensen wound assessment reliability](https://pmc.ncbi.nlm.nih.gov/articles/PMC6693585/)
+- [Percentage area reduction and diabetic foot-ulcer outcomes](https://pubmed.ncbi.nlm.nih.gov/16799391/)
+- [Standardized wound photography algorithm](https://pubmed.ncbi.nlm.nih.gov/35993857/)
+- [Computerized planimetry accuracy and reliability](https://pubmed.ncbi.nlm.nih.gov/19521289/)
 - [Wound healing rate and wound geometry](https://doi.org/10.1016/S0741-5214(96)80021-8)
 - [Structural Similarity Index (SSIM)](https://pubmed.ncbi.nlm.nih.gov/15376593/)
 
