@@ -96,6 +96,8 @@ Datasets, clinical images, device SDKs, model weights, and third-party assets
 are not covered automatically. Every future addition must carry its own license
 and provenance record. See [REFERENCES.md](REFERENCES.md) and
 [OPEN_SOURCE_EXTENSIONS.md](OPEN_SOURCE_EXTENSIONS.md).
+The source-only privacy and clinical-deployment boundary is in
+[`PRIVACY_AND_DATA_BOUNDARY.md`](PRIVACY_AND_DATA_BOUNDARY.md).
 
 ## Contributing
 

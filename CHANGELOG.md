@@ -8,7 +8,7 @@ together. This is not a statement of clinical performance.
 
 ## [Unreleased]
 
-No unreleased changes.
+- Added `PRIVACY_AND_DATA_BOUNDARY.md` to distinguish the Apache-2.0 source license from clinical, device, and deployment-specific privacy obligations.
 
 ## [0.1.1] - 2026-08-10
 
