@@ -64,9 +64,11 @@ clinical_lidar/             importable Python package and device-neutral APIs
   local_service.py           loopback HTTP service
   ml/                        optional, provenance-first model adapters
 webapp/                     dependency-free photo/depth browser interface
+tools/frontend_agent/      deterministic supervised frontend review agent
 examples/                   synthetic manifests only
-tests/                     deterministic regression tests
+tests/                      deterministic regression tests, including the review agent
 docs in root                compliance, security, validation, and provenance
+UI_UX_REVIEW.md             interaction decisions and design-system references
 ```
 
 ## Research boundary

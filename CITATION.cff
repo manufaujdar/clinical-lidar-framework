@@ -8,7 +8,7 @@ authors:
     affiliation: Independent research software project
 repository-code: "https://github.com/manufaujdar/clinical-lidar-framework"
 license: Apache-2.0
-version: 0.1.0
+version: 0.1.1
 date-released: 2026-08-10
 abstract: >-
   Vendor-neutral research framework for calibrated depth and paired-photo

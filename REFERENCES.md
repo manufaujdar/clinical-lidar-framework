@@ -23,6 +23,11 @@ was copied into this tool.
 - [Non-contact digital planimetry using a photo scale reference](https://pubmed.ncbi.nlm.nih.gov/36001845/) — reports reproducibility of a marker-based photo workflow.
 - [Automatic colorimetric calibration of human wounds](https://pmc.ncbi.nlm.nih.gov/articles/PMC2850874/) — supports color-chart/white-balance controls before interpreting color changes.
 - [Standardized photography protocol for injury documentation](https://pubmed.ncbi.nlm.nih.gov/26932497/) — supports consistent distance, scale, orientation, and capture protocol.
+- [PUSH derivation and validation](https://pubmed.ncbi.nlm.nih.gov/11723157/) — supports the limited pressure-ulcer structure of length × width, exudate amount, and tissue type.
+- [Bates-Jensen wound assessment reliability](https://pmc.ncbi.nlm.nih.gov/articles/PMC6693585/) — supports recording wound size, visible depth, edges, undermining/tunneling, tissue, exudate, and periwound characteristics as structured observations.
+- [Percentage area reduction and diabetic foot-ulcer outcomes](https://pubmed.ncbi.nlm.nih.gov/16799391/) — supports cautious longitudinal use of area change in a defined diabetic-foot-ulcer study population, not a general recovery threshold.
+- [Standardized wound photography algorithm](https://pubmed.ncbi.nlm.nih.gov/35993857/) — supports recording standardized capture conditions and repeatable photography practices.
+- [Computerized planimetry accuracy and reliability](https://pubmed.ncbi.nlm.nih.gov/19521289/) — supports separating image-derived planimetry from subjective clinical observations and documenting image-margin quality.
 - [The influence of wound geometry on healing-rate measurement](https://doi.org/10.1016/S0741-5214(96)80021-8) — motivates reporting linear edge change alongside percentage area reduction.
 - [Structural similarity image quality assessment](https://pubmed.ncbi.nlm.nih.gov/15376593/) — source for the SSIM-style image comparison signal.
 
