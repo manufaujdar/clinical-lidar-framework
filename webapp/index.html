@@ -106,7 +106,8 @@
               <label>Width <span>%</span><input id="roiWidth" type="number" min="10" max="100" step="1" value="60" /></label>
               <label>Height <span>%</span><input id="roiHeight" type="number" min="10" max="100" step="1" value="60" /></label>
             </div>
-            <label>Segmentation sensitivity <output id="sensitivityValue">1.0</output><input class="range" id="sensitivity" type="range" min="0.5" max="2.5" step="0.1" value="1" /></label>
+            <label for="sensitivity"><span id="sensitivity-label">Segmentation sensitivity</span> <output id="sensitivityValue">1.0</output></label>
+            <input class="range" id="sensitivity" aria-labelledby="sensitivity-label" type="range" min="0.5" max="2.5" step="0.1" value="1" />
           </details>
         </div>
         </div>
