@@ -3,11 +3,7 @@
 [![Tests](https://github.com/manufaujdar/clinical-lidar-framework/actions/workflows/test.yml/badge.svg)](https://github.com/manufaujdar/clinical-lidar-framework/actions/workflows/test.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Clinical LiDAR Framework (CLF) is an open-source, vendor-neutral research
-framework for calibrated wound-surface measurement and longitudinal comparison.
-It provides deterministic geometry utilities, phantom-calibration helpers,
-validation metrics, device-depth contracts, a local numeric store, and a small
-paired-photo review webapp.
+Clinical LiDAR Framework (CLF) is an open-source, vendor-neutral research framework for calibrated three-dimensional wound-surface measurement and comparison across visits. It combines depth and paired-photo workflows with quality gates, phantom-calibration helpers, validation metrics, device-depth contracts, a local numeric store, and a small review webapp.
 
 The name describes the research domain. This software is not a clinical device,
 does not diagnose or score healing, and must not be used to make treatment,
