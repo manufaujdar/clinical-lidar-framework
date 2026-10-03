@@ -119,3 +119,10 @@ This is an early public research release. The next owners are clinical research,
 privacy/security, device-calibration, and human-factors reviewers. Public source
 availability does not imply clinical validation, regulatory clearance, or safe
 use with protected health information.
+
+
+Spec Kit v1.1.0 — local development/planning workflow
+---------------------------------------------------
+Read .specify/INTEGRATION.md for the installed Codex feature, bug and idea
+commands. Existing project/company trackers and approvals remain authoritative.
+Run commands from this folder; new project chats discover .agents/skills/speckit-*.
