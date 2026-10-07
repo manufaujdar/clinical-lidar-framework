@@ -33,3 +33,23 @@ It is a product-quality review, not a claim of clinical usability validation.
 ## Remaining validation
 
 The interface still needs moderated usability testing with representative clinical-research users, keyboard-only testing on supported browsers, and device testing at 320px, 768px, and desktop widths. These are human-factors checks, not substitutes for clinical validation.
+
+## Oil UI local follow-up — 7 October 2026
+
+Within the authorized portfolio request, `webapp/index.html` and `styles.css`
+received keyboard-focusable native uploads, visible labelled-card focus, a skip
+link/main target, readable fields, usable secondary targets and narrow reflow.
+Geometry/calibration/quality logic was not changed. Oil UI 0.16.5 at
+`e4c8f60be407a4f1ec28459eb782e8eb94447888` (MIT) informed existing-interface
+review; no upstream code, dependency or script was installed.
+
+All 25 existing unit tests and a controlled Chromium synthetic photo-picker/demo
+check pass; checked states reflow at 320/768/1440px. Native Enter opens the file
+picker, and only synthetic demo images were used. These checks partially address
+the previous keyboard/viewport gap; actual devices, all quality/report states,
+screen readers and moderated usability remain unverified. See the supporting
+[portfolio report](../UI_UX_REVIEW_2026-10-07.md) for exact scope/evidence.
+
+Active gear: release review. Next owners remain the existing research/privacy/
+human-factors reviewers named in governance. No new approval is pending for this
+local UI patch; no clinical use, deployment, commit or publication was performed.

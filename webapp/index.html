@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#workspace">Skip to photo comparison</a>
     <header class="site-header">
       <a class="brand" href="." aria-label="Clinical LiDAR home">
         <span class="brand-mark" aria-hidden="true">
@@ -27,7 +28,7 @@
       </div>
     </header>
 
-    <main>
+    <main id="workspace" tabindex="-1">
       <section class="hero" aria-labelledby="page-title">
         <div>
           <p class="eyebrow">Paired-photo research tool</p>
@@ -46,7 +47,7 @@
           <article class="capture-card" id="baselineCard">
             <div class="capture-card-heading"><span class="capture-label">Earlier photo</span><span class="capture-state" id="baselineState">Waiting</span></div>
             <div class="image-stage"><img id="baselinePreview" alt="Earlier photo preview" hidden /><div class="image-empty" id="baselineEmpty"><span aria-hidden="true">＋</span><strong>Add the earlier photo</strong><small>Camera or image file</small></div></div>
-            <input id="baselineFile" type="file" accept="image/*" capture="environment" hidden />
+            <input id="baselineFile" type="file" accept="image/*" capture="environment" class="file-input" />
             <label class="button secondary full" for="baselineFile">Add earlier photo</label>
             <p class="helper" id="baselineMeta">Image stays in memory and is not saved with the result.</p>
           </article>
@@ -54,7 +55,7 @@
           <article class="capture-card" id="followupCard">
             <div class="capture-card-heading"><span class="capture-label">Follow-up photo</span><span class="capture-state" id="followupState">Waiting</span></div>
             <div class="image-stage"><img id="followupPreview" alt="Follow-up photo preview" hidden /><div class="image-empty" id="followupEmpty"><span aria-hidden="true">＋</span><strong>Add the follow-up photo</strong><small>Camera or image file</small></div></div>
-            <input id="followupFile" type="file" accept="image/*" capture="environment" hidden />
+            <input id="followupFile" type="file" accept="image/*" capture="environment" class="file-input" />
             <label class="button secondary full" for="followupFile">Add follow-up photo</label>
             <p class="helper" id="followupMeta">Keep the same view as the earlier photo.</p>
           </article>
