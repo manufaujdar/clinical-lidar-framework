@@ -33,3 +33,9 @@ It is a product-quality review, not a claim of clinical usability validation.
 ## Remaining validation
 
 The interface still needs moderated usability testing with representative clinical-research users, keyboard-only testing on supported browsers, and device testing at 320px, 768px, and desktop widths. These are human-factors checks, not substitutes for clinical validation.
+
+## Paired-photo scroll/settings repair · 11 October 2026
+
+Authorized portfolio audit implementation. Shared result rendering no longer moves the editor; explicit Analyze alone navigates to results. Analyze, Reset and Method navigation honor reduced motion. Numeric-history save/clear leaves previous memory and storage intact on write failure; Save has inline success/error feedback and retry. Same-case Reset semantics retain context while clearing images and review/calibration flags.
+
+Verified 26 unit tests, Node syntax, Ruff check-only, deterministic frontend audit and whitespace check. Chromium synthetic desktop 1280×720 and phone 390×844 checks prove zero slider-scroll delta, failed save preserving history, retry success and same-case Reset. No photos or patient records enter fixtures. No library, segmentation/model, clinical/backend capability or deployment changed. Active gear: release review. Next owner: portfolio release owner for the focused branch, then existing research/device validators. Physical sensor, browser-camera and screen-reader validation remains open; no new approval required for the requested source push.
