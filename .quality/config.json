@@ -1,0 +1,66 @@
+{
+  "engineering_docs": [
+    "QUALITY.md",
+    "CONTRIBUTING.md",
+    "webapp/README.md",
+    "docs/architecture/*.md",
+    "docs/testing/*.md",
+    "release/*.md"
+  ],
+  "native": [
+    {
+      "args": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    },
+    {
+      "args": [
+        "python3",
+        "-m",
+        "compileall",
+        "-q",
+        "clinical_lidar"
+      ]
+    },
+    {
+      "args": [
+        "node",
+        "--check",
+        "webapp/app.js"
+      ]
+    },
+    {
+      "args": [
+        "python3",
+        "tools/frontend_agent/frontend_agent.py",
+        "audit",
+        "--json"
+      ]
+    }
+  ],
+  "browser": [
+    {
+      "cwd": ".quality",
+      "args": [
+        "npm",
+        "test"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "tool": "npm",
+      "cwd": ".quality",
+      "args": [
+        "audit",
+        "--audit-level=high"
+      ]
+    }
+  ]
+}
