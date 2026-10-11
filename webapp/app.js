@@ -4,6 +4,7 @@ const HISTORY_KEY = "clinical-lidar.paired-photo-history.v1";
 const GRID_WIDTH = 160;
 const GRID_HEIGHT = 120;
 const $ = (id) => document.getElementById(id);
+const scrollBehavior = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
 
 const state = {
   images: { baseline: null, followup: null },
@@ -21,9 +22,9 @@ function loadHistory() {
   }
 }
 
-function saveHistory() {
+function saveHistory(history = state.history) {
   try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history));
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     return true;
   } catch {
     return false;
@@ -431,6 +432,7 @@ function comparePair() {
 }
 
 function renderResult(result, first, second) {
+  $("saveStatus").textContent = "";
   $("resultsSection").hidden = false; const usable = result.quality.usable; const area = result.change.areaReductionPercent; const stateLabel = $("resultState"); stateLabel.textContent = usable ? "Comparable with review" : "Review required"; stateLabel.classList.toggle("ready", usable);
   $("summaryTitle").textContent = usable ? (area !== null && area >= 5 ? "Area is smaller in the later photo" : area !== null && area <= -5 ? "Area is larger in the later photo" : "No clear area change") : "The pair needs review before interpretation";
   $("summaryText").textContent = usable ? "The calibrated photo measurements show a change in wound geometry. Confirm the outlines and interpret alongside the clinical assessment." : `The result is provisional because ${result.quality.flags.join(", ").replaceAll("_", " ")}.`;
@@ -441,7 +443,7 @@ function renderResult(result, first, second) {
   $("ssimValue").textContent = format(result.imageSignal.ssim, 2); $("ssimDetail").textContent = format(result.imageSignal.ssim, 2); $("changedFraction").textContent = `${format(result.imageSignal.changedFraction * 100, 1)}%`; $("circularityDetail").textContent = `${format(result.baseline.metrics.circularity, 2)} → ${format(result.followup.metrics.circularity, 2)}`; $("colorMixDetail").textContent = `${format(result.baseline.colorFractions.red * 100, 0)}% red → ${format(result.followup.colorFractions.red * 100, 0)}%`; $("qualityScore").textContent = `${Math.round(result.quality.score * 100)} / 100`; $("qualityScore").classList.toggle("ready", usable);
   const qualityLabels = { scaleMarker: "Scale reference", poseAlignment: "Frame alignment", lightingConsistency: "Lighting consistency", segmentationReviewed: "Outline review", imageQuality: "Photo quality" };
   $("qualityList").replaceChildren(...Object.entries(result.quality.components).map(([key, value]) => { const item = document.createElement("div"); item.className = `quality-item ${value < .75 ? "warn" : ""}`; const label = document.createElement("span"); label.textContent = qualityLabels[key] || key; const score = document.createElement("strong"); score.textContent = `${Math.round(value * 100)}%`; item.append(label, score); return item; }));
-  drawOverlay("baselineCanvas", state.images.baseline.image, first); drawOverlay("followupCanvas", state.images.followup.image, second); renderContextNotes(result); renderMarkdownReport(result); $("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+  drawOverlay("baselineCanvas", state.images.baseline.image, first); drawOverlay("followupCanvas", state.images.followup.image, second); renderContextNotes(result); renderMarkdownReport(result);
 }
 
 function drawOverlay(canvasId, image, segmentation) {
@@ -460,6 +462,7 @@ function analyzePair() {
   try {
     if (state.setupNeedsRun) runAutoSetup();
     comparePair();
+    $("resultsSection").scrollIntoView({ behavior: scrollBehavior(), block: "start" });
     $("formMessage").textContent = "Analysis complete. Review the outlines and quality gate below.";
   } catch (error) {
     $("formMessage").textContent = error.message;
@@ -469,13 +472,14 @@ function analyzePair() {
 function saveResult() {
   if (!state.result) return;
   const record = { id: `pair-${Date.now()}`, captured_at: state.result.capturedAt, earlier_image: state.result.baseline.name, later_image: state.result.followup.name, change: state.result.change, image_signal: state.result.imageSignal, quality: state.result.quality, tissue: state.result.tissue, context: collectContext() };
-  state.history = [record, ...state.history].slice(0, 20);
-  if (!saveHistory()) {
-    $("formMessage").textContent = "Could not save numeric history in this browser. Download the report instead.";
+  const history = [record, ...state.history].slice(0, 20);
+  if (!saveHistory(history)) {
+    $("saveStatus").textContent = "Could not save numeric history in this browser. Download the report instead.";
     return;
   }
+  state.history = history;
   renderHistory();
-  $("formMessage").textContent = "Numeric result saved locally. Images were not saved.";
+  $("saveStatus").textContent = "Numeric result saved locally. Images were not saved.";
 }
 
 function downloadResult() {
@@ -491,7 +495,7 @@ function downloadResult() {
 
 function renderHistory() { const list = $("historyList"); $("clearHistory").disabled = !state.history.length; if (!state.history.length) { list.replaceChildren(Object.assign(document.createElement("p"), { className: "helper", textContent: "No numeric comparisons saved on this device." })); return; } list.replaceChildren(...state.history.map((record) => { const item = document.createElement("div"); item.className = "history-item"; const label = document.createElement("span"); label.textContent = `${new Date(record.captured_at).toLocaleDateString()} · ${record.earlier_image} → ${record.later_image}`; const value = document.createElement("strong"); value.textContent = record.change.areaReductionPercent === null ? "uncalibrated" : `${format(record.change.areaReductionPercent, 1)}% area`; item.append(label, value); return item; })); }
 
-function resetPair() { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline: null, followup: null }; state.result = null; state.setupNeedsRun = true; $("baselineFile").value = ""; $("followupFile").value = ""; $("scaleConfirmed").checked = false; $("reviewedMask").checked = false; $("autoSetupStatus").textContent = "Add both photos to start."; $("resultsSection").hidden = true; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function resetPair() { Object.values(state.images).forEach((entry) => { if (entry?.src) URL.revokeObjectURL(entry.src); }); state.images = { baseline: null, followup: null }; state.result = null; state.setupNeedsRun = true; $("baselineFile").value = ""; $("followupFile").value = ""; $("scaleConfirmed").checked = false; $("reviewedMask").checked = false; $("autoSetupStatus").textContent = "Add both photos to start."; $("resultsSection").hidden = true; drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); window.scrollTo({ top: 0, behavior: scrollBehavior() }); }
 
 function syntheticImage(woundScale) {
   const canvas = document.createElement("canvas"); canvas.width = 640; canvas.height = 480; const context = canvas.getContext("2d"); context.fillStyle = "#c98f76"; context.fillRect(0, 0, canvas.width, canvas.height); context.fillStyle = "rgba(230, 167, 142, .45)"; context.fillRect(0, 0, canvas.width, canvas.height); context.strokeStyle = "#faf4d2"; context.lineWidth = 10; context.strokeRect(44, 34, 100, 42); context.fillStyle = "#9f443d"; context.beginPath(); context.ellipse(330, 260, 100 * woundScale, 75 * woundScale, -.16, 0, Math.PI * 2); context.fill(); context.fillStyle = "#d1a34e"; context.beginPath(); context.ellipse(315, 245, 36 * woundScale, 21 * woundScale, .2, 0, Math.PI * 2); context.fill(); return canvas.toDataURL("image/png");
@@ -525,12 +529,12 @@ $("comparePair").addEventListener("click", analyzePair);
 $("sensitivity").addEventListener("input", (event) => { $("sensitivityValue").textContent = Number(event.target.value).toFixed(1); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } });
 ["scaleConfirmed", "reviewedMask", "markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].forEach((id) => $(id).addEventListener("change", () => { if (["markerWidthMm", "baselineMarkerPx", "followupMarkerPx", "daysBetween", "roiX", "roiY", "roiWidth", "roiHeight"].includes(id)) state.setupNeedsRun = false; updateForm(); if (state.result) { try { comparePair(); } catch { /* keep the last valid result visible */ } } }));
 $("saveResult").addEventListener("click", saveResult); $("downloadResult").addEventListener("click", downloadResult); $("resetPair").addEventListener("click", resetPair);
-$("clearHistory").addEventListener("click", () => { if (!confirm("Clear saved numeric comparisons from this device?")) return; state.history = []; if (!saveHistory()) { $("formMessage").textContent = "Could not update local history in this browser."; return; } renderHistory(); });
+$("clearHistory").addEventListener("click", () => { if (!confirm("Clear saved numeric comparisons from this device?")) return; if (!saveHistory([])) { $("formMessage").textContent = "Could not update local history in this browser."; return; } state.history = []; renderHistory(); });
 const contextFieldIds = ["caseCode", "anatomicSite", "laterality", "woundType", "woundStage", "woundDurationDays", "captureSetting", "baselineCapturedAt", "followupCapturedAt", "baselineCaptureCondition", "followupCaptureCondition", "exudateBaseline", "exudateFollowup", "tissueBaseline", "tissueFollowup", "periwoundBaseline", "periwoundFollowup", "edgeBaseline", "edgeFollowup", "depthBaselineMm", "depthFollowupMm", "painBaseline", "painFollowup", "dressingBaseline", "dressingFollowup", "careChanges", "operatorNote"];
 contextFieldIds.forEach((id) => $(id).addEventListener("input", () => { syncDaysBetweenFromContext(); if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
 contextFieldIds.forEach((id) => $(id).addEventListener("change", () => { syncDaysBetweenFromContext(); if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
 document.querySelectorAll("[data-context-sign]").forEach((input) => input.addEventListener("change", () => { if (state.result) { renderContextNotes(state.result); renderMarkdownReport(state.result); } }));
 $("copyReport").addEventListener("click", copyReport);
-document.querySelectorAll('a[href="#method-panel"]').forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); const methodPanel = $("method-panel"); methodPanel.setAttribute("open", ""); methodPanel.scrollIntoView({ block: "start", behavior: "smooth" }); history.replaceState(null, "", "#method-panel"); }));
+document.querySelectorAll('a[href="#method-panel"]').forEach((link) => link.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); const methodPanel = $("method-panel"); methodPanel.setAttribute("open", ""); methodPanel.scrollIntoView({ block: "start", behavior: scrollBehavior() }); history.replaceState(null, "", "#method-panel"); }));
 
 renderHistory(); drawPhotoPreview("baseline"); drawPhotoPreview("followup"); updateForm(); updateDepthApiStatus();
