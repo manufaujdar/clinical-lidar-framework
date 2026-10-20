@@ -1,9 +1,15 @@
 # Clinical LiDAR Framework
 
+[Documentation index](docs/DOCUMENTATION_INDEX.md) ·
+[Architecture](docs/architecture.md) · [Quality gates](QUALITY.md)
+
 [![Tests](https://github.com/manufaujdar/clinical-lidar-framework/actions/workflows/test.yml/badge.svg)](https://github.com/manufaujdar/clinical-lidar-framework/actions/workflows/test.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-Clinical LiDAR Framework (CLF) is an open-source, vendor-neutral research framework for calibrated three-dimensional wound-surface measurement and comparison across visits. It combines depth and paired-photo workflows with quality gates, phantom-calibration helpers, validation metrics, device-depth contracts, a local numeric store, and a small review webapp.
+Clinical LiDAR Framework (CLF) is an open-source, vendor-neutral research framework for calibrated
+three-dimensional wound-surface measurement and comparison across visits. It combines depth and
+paired-photo workflows with quality gates, phantom-calibration helpers, validation metrics,
+device-depth contracts, a local numeric store, and a small review webapp.
 
 The name describes the research domain. This software is not a clinical device,
 does not diagnose or score healing, and must not be used to make treatment,
@@ -63,7 +69,8 @@ webapp/                     dependency-free photo/depth browser interface
 tools/frontend_agent/      deterministic supervised frontend review agent
 examples/                   synthetic manifests only
 tests/                      deterministic regression tests, including the review agent
-docs in root                compliance, security, validation, and provenance
+docs/                       documentation index, architecture, and technical guide
+root governance documents    compliance, security, validation, and provenance
 UI_UX_REVIEW.md             interaction decisions and design-system references
 ```
 

@@ -4,30 +4,38 @@ Clinical LiDAR Framework is an Apache-2.0, vendor-neutral research framework
 for calibrated depth and wound-surface measurement. It is not a clinical
 device, diagnostic system, treatment tool, or validated healing score.
 
-## Authoritative documents
+## Choose a task
 
-- README.md: scope, quick start, repository map, and research boundary.
-- docs/architecture.md and docs/technical-overview.md: software and technology baseline.
-- VALIDATION_PROTOCOL.md and WOUND_COMPARISON_METHOD.md: methodology contracts.
-- COMPLIANCE.md and SECURITY.md: governance and safety boundary.
-- MODEL_CARD_TEMPLATE.md, DATASET_CARD_TEMPLATE.md, REFERENCES.md, and NOTICE: provenance.
-- CONTRIBUTING.md, GOVERNANCE.md, CHANGELOG.md, and CITATION.cff: maintenance.
+| Task | Read first | Continue with |
+| --- | --- | --- |
+| Run a synthetic example | [Quick start](../README.md#quick-start) | [Technical overview](technical-overview.md) |
+| Change a measurement component | [Architecture](architecture.md) | [Comparison method](../WOUND_COMPARISON_METHOD.md), [validation protocol](../VALIDATION_PROTOCOL.md) |
+| Use the browser or local service | [Webapp guide](../webapp/README.md) | [Security boundary](../SECURITY.md), [UI decisions](../UI_UX_REVIEW.md) |
+| Add a device or model adapter | [Extension policy](../OPEN_SOURCE_EXTENSIONS.md) | [ML contracts](../clinical_lidar/ml/README.md), [model card](../MODEL_CARD_TEMPLATE.md), [dataset card](../DATASET_CARD_TEMPLATE.md) |
+| Contribute or publish | [Contribution guide](../CONTRIBUTING.md) | [Quality gates](../QUALITY.md), [governance](../GOVERNANCE.md), [changelog](../CHANGELOG.md) |
+| Assess a research claim | [Validation protocol](../VALIDATION_PROTOCOL.md) | [References](../REFERENCES.md), [compliance](../COMPLIANCE.md) |
 
-## Initial documentation set
+## File and folder ownership
 
-| Area | Status |
+| Location | Purpose |
 | --- | --- |
-| Product/research scope and non-use | Present |
-| Architecture and data zones | Added |
-| Codebase and extension points | Added |
-| Technology and local operations | Added |
-| Validation and uncertainty | Present |
-| Model/dataset/provenance boundary | Present |
-| License/governance/citation | Present |
+| `clinical_lidar/` | Geometry, calibration, comparison, validation and numeric storage APIs |
+| `clinical_lidar/ml/` | Optional registration and segmentation adapters with explicit provenance |
+| `webapp/` | Browser interface and its operating instructions |
+| `examples/`, `tests/` | Synthetic input manifests and deterministic regression evidence |
+| `tools/`, `.quality/` | Supervised local review and repository quality tooling |
+| `docs/` | This task index, architecture and technical overview |
+| Root Markdown files | Shared methodology, safety, governance, contribution and provenance contracts |
 
-## Reference patterns
+Keep implementation-specific instructions beside their package or webapp. Link
+shared methodology and governance from this index rather than duplicating their
+requirements. New examples must remain synthetic and clearly labelled.
 
-Use Open3D, MONAI, 3D Slicer, and vendor-neutral scientific-software
-documentation as comparison points. Optional adapters must remain explicit and
-must not silently convert synthetic or RGB inputs into clinical claims.
+## Evidence and release limits
 
+Geometry or image change is not a healing score. Device calibration,
+reference-method validation, intended use and approved data handling remain
+separate research gates. Optional OpenCV, Open3D and segmentation integrations
+do not turn RGB images into native depth measurements or establish clinical
+fitness. Source and third-party terms are in [LICENSE](../LICENSE),
+[NOTICE](../NOTICE) and the [reference register](../REFERENCES.md).
